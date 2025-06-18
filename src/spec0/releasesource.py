@@ -265,22 +265,30 @@ class CondaReleaseSource(ReleaseSource):
     """
 
     def __init__(self, channel_platforms: list[str]):
-        # TODO: determine if can use the bz2 instead
-        self._repodata = {"packages": {}, "packages.conda": {}}
+        self._channel_platforms = channel_platforms
+        self._repodata_cache = None
 
-        for channel_platform in channel_platforms:
-            channel, platform = channel_platform.split("/", 1)
-            url = f"https://conda.anaconda.org/{channel}/{platform}/repodata.json"
-            cachefile = CACHE_DIR / channel_platform / "repodata.json"
-            cachefile = get_file(url, cachefile)
-            with open(cachefile, "r") as f:
-                data = json.load(f)
+    @property
+    def _repodata(self):
+        if self._repodata_cache is None:
+            # TODO: determine if can use the bz2 instead
+            self._repodata_cache = {"packages": {}, "packages.conda": {}}
 
-            # Merge packages
-            for pkg_name, pkg_info in data.get("packages", {}).items():
-                self._repodata["packages"][pkg_name] = pkg_info
-            for pkg_name, pkg_info in data.get("packages.conda", {}).items():
-                self._repodata["packages.conda"][pkg_name] = pkg_info
+            for channel_platform in self._channel_platforms:
+                channel, platform = channel_platform.split("/", 1)
+                url = f"https://conda.anaconda.org/{channel}/{platform}/repodata.json"
+                cachefile = CACHE_DIR / channel_platform / "repodata.json"
+                cachefile = get_file(url, cachefile)
+                with open(cachefile, "r") as f:
+                    data = json.load(f)
+
+                # Merge packages
+                for pkg_name, pkg_info in data.get("packages", {}).items():
+                    self._repodata_cache["packages"][pkg_name] = pkg_info
+                for pkg_name, pkg_info in data.get("packages.conda", {}).items():
+                    self._repodata_cache["packages.conda"][pkg_name] = pkg_info
+
+        return self._repodata_cache
 
     def _get_releases(self, package):
         # Combine "packages" and "packages.conda" if present
