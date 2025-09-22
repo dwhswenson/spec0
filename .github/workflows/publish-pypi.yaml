@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy_pypi:
-    if: ${{ github.repository == 'omsf/spec0' }}
+    if: ${{ github.repository == 'omsf/spec0-tools' }}
     runs-on: ubuntu-latest
     name: "Publish on PyPI"
     permissions:

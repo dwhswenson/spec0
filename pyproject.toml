@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "spec0"
-version = "0.0.1.dev0"
+name = "spec0-tools"
+version = "0.1.0"
 description = "A tool to check which versions of a package should be supported according to SPEC0."
 authors = [
   { name = "David W.H. Swenson", email = "dwhs@hyperblazer.net" }
